@@ -6,9 +6,12 @@ import { Outlet, useNavigate, useLocation } from "react-router-dom";
 
 import Navbar from "./Navbar";
 import { useAuthStore } from "../store/useAuthStore.js";
+import { useThemeStore } from "../store/useThemeStore.js";
 
 const LayoutComponent = () => {
 	const { authUser, checkAuth, isCheckingAuth } = useAuthStore();
+	const { theme } = useThemeStore();
+
 	const navigate = useNavigate();
 	const location = useLocation();
 
@@ -22,10 +25,13 @@ const LayoutComponent = () => {
 		if (!isCheckingAuth) {
 			if (!authUser && !allowedPaths.includes(location.pathname)) {
 				navigate("/login", { replace: true });
-			} else if (authUser && ["/login", "/signup"].includes(location.pathname)) {
+			} else if (
+				authUser &&
+				["/login", "/signup"].includes(location.pathname)
+			) {
 				navigate("/", { replace: true });
-			};
-		};
+			}
+		}
 	}, [isCheckingAuth, authUser, navigate, location.pathname]);
 
 	// Show loading message if authUser is null
@@ -35,10 +41,10 @@ const LayoutComponent = () => {
 				<Loader className="size-10 animate-spin" />
 			</div>
 		);
-	};
+	}
 
 	return (
-		<div>
+		<div data-theme={theme} className="min-h-screen">
 			<Navbar />
 			<Outlet />
 			<Toaster />

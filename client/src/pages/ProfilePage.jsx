@@ -1,6 +1,6 @@
 import React from "react";
 import { useState } from "react";
-import { Camera } from "lucide-react";
+import { Camera, Mail, User } from "lucide-react";
 
 import { useAuthStore } from "../store/useAuthStore";
 
@@ -8,7 +8,20 @@ const ProfilePage = () => {
 	const { authUser, isUpdatingProfile, updateProfile } = useAuthStore();
 	const [selectedImg, setSelectedImg] = useState(null);
 
-	const handleImageUpload = async (e) => {};
+	const handleImageUpload = async (e) => {
+		const file = e.target.files[0];
+
+		if (!file) return;
+
+		const reader = new FileReader();
+		reader.readAsDataURL(file);
+
+		reader.onload = async (e) => {
+			const base64image = e.target.result;
+			setSelectedImg(base64image);
+			await updateProfile({ profilePic: base64image });
+		};
+	};
 
 	return (
 		<div className="h-screen pt-20">
@@ -22,12 +35,14 @@ const ProfilePage = () => {
 					{/* Profile Image */}
 					<div className="flex flex-col items-center gap-4">
 						<div className="relative">
-							<img 
-								src={selectedImg || authUser.profilePic || "/avatar.png"} 
+							<img
+								src={
+									selectedImg || authUser.profilePic || "/avatar.png"
+								}
 								alt="Profile"
-								className="size-32 rounded-full object-cover border-4" 
+								className="size-32 rounded-full object-cover border-4"
 							/>
-							<label 
+							<label
 								htmlFor="avatar-upload"
 								className={`
 									absolute bottom-0 right-0
@@ -38,8 +53,8 @@ const ProfilePage = () => {
 								`}
 							>
 								<Camera className="w-5 h-5 text-base-200" />
-								<input 
-									type="file" 
+								<input
+									type="file"
 									id="avatar-upload"
 									className="hidden"
 									accept="image/*"
@@ -49,8 +64,48 @@ const ProfilePage = () => {
 							</label>
 						</div>
 						<p className="text-sm text-zinc-200">
-							{isUpdatingProfile ? "Uploading..." : "Click image to upload"}
+							{isUpdatingProfile
+								? "Uploading..."
+								: "Click image to upload"}
 						</p>
+					</div>
+
+					<div className="space-y-6">
+						<div className="space-y-1.5">
+							<div className="text-sm text-zinc-400 flex items-center gap-2">
+								<User className="w-4 h-4" />
+								Full Name
+							</div>
+							<p className="px-4 py-2.5 bg-base-200 rounded-lg border">
+								{authUser?.fullName}
+							</p>
+						</div>
+
+						<div className="space-y-1.5">
+							<div className="text-sm text-zinc-400 flex items-center gap-2">
+								<Mail className="w-4 h-4" />
+								Email Address
+							</div>
+							<p className="px-4 py-2.5 bg-base-200 rounded-lg border">
+								{authUser?.email}
+							</p>
+						</div>
+
+						<div className="mt-6 bg-base-300 rounded-xl p-6">
+							<h2 className="text-lg font-medium  mb-4">
+								Account Information
+							</h2>
+							<div className="space-y-3 text-sm">
+								<div className="flex items-center justify-between py-2 border-b border-zinc-700">
+									<span>Member Since</span>
+									<span>{authUser.createdAt?.split("T")[0]}</span>
+								</div>
+								<div className="flex items-center justify-between py-2">
+									<span>Account Status</span>
+									<span className="text-green-500">Active</span>
+								</div>
+							</div>
+						</div>
 					</div>
 				</div>
 			</div>
